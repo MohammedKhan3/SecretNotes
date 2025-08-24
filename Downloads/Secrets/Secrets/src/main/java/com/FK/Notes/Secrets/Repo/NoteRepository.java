@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 public interface NoteRepository extends JpaRepository<Notes,Long> {
-    List<Notes> findByOwnerUserName(String ownerUsername);
+    List<Notes> findByOwnerUsername(String ownerUsername);
 }
