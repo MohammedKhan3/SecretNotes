@@ -10,6 +10,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 //@Component
+/*
+This class extends OncePerRequestFilter will - run filter exactly one time.
+
+ */
 public class CustomLoggingFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

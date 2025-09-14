@@ -23,3 +23,14 @@ public class UserDetailsServiceImplementation implements UserDetailsService {
        return UserDetailImpl.build(user);
     }
 }
+
+
+/*
+ * @Transactional marks a method or class as transactional.
+ *
+ * All database operations inside a @Transactional method are executed within a transaction.
+ * If the method completes successfully, changes are committed to the database.
+ * If a RuntimeException (unchecked exception) occurs, all changes are rolled back to maintain data consistency.
+ *
+ * Optional: You can configure rollback for checked exceptions using rollbackFor attribute.
+ */

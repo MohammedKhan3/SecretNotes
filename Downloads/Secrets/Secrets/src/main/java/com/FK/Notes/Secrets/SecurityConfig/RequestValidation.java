@@ -11,7 +11,13 @@ import java.io.IOException;
 
 //@Component
 public class RequestValidation extends OncePerRequestFilter {
+/*
 
+This filter checks the HTTP request header "X-Valid-Request".
+If the header is present and its value is "true", the request proceeds.
+Otherwise, the filter responds with HTTP 400 Bad Request.
+
+ */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String header = request.getHeader("X-Valid-Request");

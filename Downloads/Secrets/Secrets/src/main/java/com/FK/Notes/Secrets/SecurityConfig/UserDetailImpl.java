@@ -19,7 +19,12 @@ public class UserDetailImpl implements UserDetails {
     private Long id;
     private String username;
     private String email;
+ /*
+ @JsonIgnore is used when you are serializing/deserializing Java objects to/from JSON (e.g., in REST APIs).
 
+When applied to a field, it tells Jackson to ignore this field when sending the object in API responses or reading JSON requests.
+
+  */
     @JsonIgnore
     private String password;
 

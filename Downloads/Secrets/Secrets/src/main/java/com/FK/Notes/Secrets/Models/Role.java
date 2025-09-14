@@ -38,3 +38,10 @@ public class Role{
         this.roleName = roleName;
     }
 }
+/*
+
+Annotation	Purpose
+@JsonManagedReference	The forward side of a relationship. Will be serialized.
+@JsonBackReference	The back side. Ignored during serialization to avoid recursion.
+
+ */

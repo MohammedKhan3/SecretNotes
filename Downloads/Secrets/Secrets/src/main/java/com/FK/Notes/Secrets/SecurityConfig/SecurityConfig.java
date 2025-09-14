@@ -4,12 +4,16 @@ import com.FK.Notes.Secrets.Models.AppRole;
 import com.FK.Notes.Secrets.Models.Role;
 import com.FK.Notes.Secrets.Repo.RoleRepository;
 import com.FK.Notes.Secrets.Repo.UserRepo;
+import com.FK.Notes.Secrets.SecurityConfig.JWT.AuthEntryPoint;
+import com.FK.Notes.Secrets.SecurityConfig.JWT.AuthTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.jaas.memory.InMemoryConfiguration;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -31,17 +35,38 @@ import java.time.LocalDate;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-@Configuration
-@EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true,securedEnabled = true,jsr250Enabled = true)
+@Configuration //@Configuration → Marks this class as a source of bean definitions.
+@EnableWebSecurity //enables Spring Security’s web security support.
+@EnableMethodSecurity(prePostEnabled = true,securedEnabled = true,jsr250Enabled = true) //Enables JSR-250 annotations for method-level security. such as
+/*
+@RolesAllowed("ADMIN") → Only users with ADMIN role can access the method
+
+@PermitAll → Everyone can access
+
+@DenyAll → No one can access
+
+ */
 public class SecurityConfig {
 
+    @Autowired
+    private AuthEntryPoint unauthorizedHandler;
+
+    @Bean
+    public AuthTokenFilter authenticationJwtTokenFilter(){
+        return new AuthTokenFilter();
+    }
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
     
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
 
         http.csrf(csrf->csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringRequestMatchers("/api/auth/public/**"));
-        http.authorizeHttpRequests((request)->request.requestMatchers("/api/csrf-token/**").permitAll().anyRequest().authenticated());
+        http.authorizeHttpRequests((request)->request.requestMatchers("/api/csrf-token/**").permitAll().requestMatchers("/api/auth/public/**").permitAll().anyRequest().authenticated());
+        http.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler));
+        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
          http.httpBasic(withDefaults());
         return http.build();
     }
@@ -49,6 +74,8 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder(){
        return new BCryptPasswordEncoder();
     }
+
+    //Initializing random users when program starts
     @Bean
     public CommandLineRunner initData(RoleRepository roleRepository, UserRepo userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
@@ -85,6 +112,47 @@ public class SecurityConfig {
                 admin.setRole(adminRole);
                 userRepository.save(admin);
             }
+            if(!userRepository.existsByUserName("developer")){
+                User developer = new User("developer","developer@gmail.com",passwordEncoder.encode("dev"));
+                developer.setAccountNonLocked(true);
+                developer.setAccountNonExpired(true);
+                developer.setCredentialsNonExpired(true);
+                developer.setEnabled(true);
+                developer.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
+                developer.setAccountExpiryDate(LocalDate.now().plusYears(1));
+                developer.setTwoFactorEnabled(false);
+                developer.setSignUpMethod("email");
+                developer.setRole(userRole);
+                userRepository.save(developer);
+
+            }
         };
+
+/*
+A lambda expression is a shorthand way to implement a functional interface (an interface with a single abstract method) without writing a full class.
+
+Syntax:
+
+(parameters) -> { body }
+
+
+parameters → the input(s) to the function
+
+-> → “maps to”
+
+{ body } → the code to execute
+
+
+Without Lambda orignal function would look like this :
+return new CommandLineRunner() {
+        @Override
+        public void run(String... args) throws Exception {
+            // code to create roles and users
+        }
+    };
+
+
+ */
+
     }
 }
