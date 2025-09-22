@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+
 @Service
 public class UserService implements UserServiceInterface{
 
@@ -60,5 +62,10 @@ public class UserService implements UserServiceInterface{
                 user.getCreatedDate(),
                 user.getUpdatedDate()
         );
+    }
+
+    public User findByUsername(String username) {
+        Optional<User> user = userRepository.findByUserName(username);
+        return user.orElseThrow(()->new RuntimeException("User not found with that username."));
     }
 }
