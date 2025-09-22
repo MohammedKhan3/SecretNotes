@@ -8,4 +8,6 @@ public interface UserServiceInterface {
     List<User> getUsers();
     UserDTO getUserById(Long id);
     void updateUserRole(Long userId,String roleName);
+
+    User findByUsername(String username);
 }

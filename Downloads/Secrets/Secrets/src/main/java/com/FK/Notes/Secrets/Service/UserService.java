@@ -7,7 +7,6 @@ import com.FK.Notes.Secrets.Models.User;
 import com.FK.Notes.Secrets.Repo.RoleRepository;
 import com.FK.Notes.Secrets.Repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -64,6 +63,7 @@ public class UserService implements UserServiceInterface{
         );
     }
 
+    @Override
     public User findByUsername(String username) {
         Optional<User> user = userRepository.findByUserName(username);
         return user.orElseThrow(()->new RuntimeException("User not found with that username."));
